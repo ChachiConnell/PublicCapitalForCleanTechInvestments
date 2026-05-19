@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Australia CleanTech Capital Tracker</title>
+<meta name="description" content="Live tracker of Australian government public capital committed and deployed to clean energy and climate solutions. Data sourced from the CEF/Greenhouse Capital Tracker.">
+<meta property="og:title" content="Australia CleanTech Capital Tracker">
+<meta property="og:description" content="$90B committed. $17.7B deployed. Track Australia's clean energy public investment in real time.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f1117;--ink2:#3a3d4a;--ink3:#7a7e8f;
+  --bg:#f8f8f5;--surface:#ffffff;--surface2:#f2f2ef;
+  --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);
+  --teal:#0c8a5f;--teal-l:#d6f5ea;--teal-d:#065c3f;
+  --blue:#1557a4;--blue-l:#ddeaf8;--blue-d:#0d3d77;
+  --amber:#b86000;--amber-l:#fff0d6;--amber-d:#7a3f00;
+  --purple:#534AB7;--purple-l:#eeedfb;
+  --red:#c0392b;--red-l:#fdecea;
+  --slate:#4a5568;--slate-l:#edf2f7;
+  --radius:14px;--radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,0.05),0 4px 20px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 24px rgba(0,0,0,0.09);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6;min-height:100vh}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(135deg,#0a2d1f 0%,#0f1a30 60%,#0d2440 100%);color:#fff;padding:0}
+.hdr-inner{max-width:1200px;margin:0 auto;padding:28px 36px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.hdr-brand{display:flex;align-items:center;gap:14px}
+.logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(12,138,95,0.9),rgba(21,87,164,0.9));display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(255,255,255,0.15)}
+.logo svg{width:22px;height:22px}
+.hdr-title{font-size:21px;font-weight:600;letter-spacing:-0.025em;line-height:1.15;color:#fff}
+.hdr-sub{font-size:13px;color:rgba(255,255,255,0.5);margin-top:3px;font-weight:400}
+.hdr-meta{text-align:right}
+.live-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(12,138,95,0.18);border:1px solid rgba(12,138,95,0.4);border-radius:99px;padding:5px 13px;font-size:12px;color:#4dffc7;font-weight:500;margin-bottom:8px;letter-spacing:0.01em}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#4dffc7;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.25}}
+.hdr-src{font-size:11px;color:rgba(255,255,255,0.38);line-height:1.7}
+.hdr-src a{color:rgba(255,255,255,0.55);text-decoration:none;transition:color 0.15s}
+.hdr-src a:hover{color:#4dffc7}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#0a2d1f 0%,#0f1a30 60%,#0d2440 100%);padding:0 0 36px}
+.hero-inner{max-width:1200px;margin:0 auto;padding:0 36px}
+.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,0.06);border-radius:var(--radius);overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
+@media(max-width:780px){.hero-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:440px){.hero-grid{grid-template-columns:1fr}}
+.h-stat{background:rgba(255,255,255,0.03);padding:24px 26px;transition:background 0.2s;cursor:default}
+.h-stat:hover{background:rgba(255,255,255,0.06)}
+.h-lbl{font-size:10.5px;font-weight:500;letter-spacing:0.09em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px}
+.h-val{font-size:34px;font-weight:300;letter-spacing:-0.035em;color:#fff;line-height:1}
+.h-val sup{font-size:18px;font-weight:500;vertical-align:super}
+.h-val sub{font-size:18px;font-weight:500}
+.h-sub{font-size:12px;color:rgba(255,255,255,0.38);margin-top:7px;line-height:1.45}
+.h-val.green{color:#4dffc7}
+.h-val.blue{color:#7eb8f7}
+.h-val.amber{color:#ffc46b}
+
+/* ── TABS ── */
+.tabs-bar{background:var(--surface);border-bottom:1px solid var(--border2);position:sticky;top:0;z-index:50;box-shadow:0 2px 16px rgba(0,0,0,0.05)}
+.tabs-inner{max-width:1200px;margin:0 auto;padding:0 36px;display:flex;overflow-x:auto;scrollbar-width:none;gap:0}
+.tabs-inner::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:15px 22px;font-size:13px;font-weight:500;color:var(--ink3);border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent;transition:all 0.18s;white-space:nowrap;font-family:'DM Sans',sans-serif;letter-spacing:0.01em}
+.tab-btn:hover{color:var(--ink)}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal)}
+
+/* ── MAIN ── */
+.main{max-width:1200px;margin:0 auto;padding:36px 36px 100px}
+@media(max-width:640px){.hdr-inner,.hero-inner,.main,.tabs-inner{padding-left:18px;padding-right:18px}}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── TYPE ── */
+.sec-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px}
+.sec-title{font-size:24px;font-weight:600;letter-spacing:-0.02em;color:var(--ink);margin-bottom:8px}
+.sec-sub{font-size:14px;color:var(--ink2);line-height:1.65;margin-bottom:28px;max-width:700px}
+
+/* ── CALLOUT ── */
+.callout{border-left:3px solid;border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:14px 18px;margin-bottom:24px;font-size:13.5px;color:var(--ink2);line-height:1.65}
+.callout.blue{background:var(--blue-l);border-color:var(--blue)}
+.callout.blue strong{color:var(--blue-d)}
+.callout.teal{background:var(--teal-l);border-color:var(--teal)}
+.callout.teal strong{color:var(--teal-d)}
+.callout.amber{background:var(--amber-l);border-color:var(--amber)}
+.callout.amber strong{color:var(--amber-d)}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:24px;box-shadow:var(--shadow)}
+.card-title{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.card-note{font-size:12px;color:var(--ink3);margin-bottom:18px;line-height:1.55}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:720px){.g2,.g3{grid-template-columns:1fr}}
+
+/* ── FUNDER BARS ── */
+.fbar{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border)}
+.fbar:last-child{border-bottom:none}
+.fbar-name{font-size:12px;font-weight:500;color:var(--ink2);width:88px;flex-shrink:0}
+.fbar-bg{flex:1;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.fbar-fill{height:100%;border-radius:99px;transition:width 1.2s cubic-bezier(0.16,1,0.3,1)}
+.fbar-amt{font-size:11.5px;color:var(--ink3);width:56px;text-align:right;flex-shrink:0;font-family:'DM Mono',monospace}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10.5px;font-weight:600;white-space:nowrap;letter-spacing:0.01em}
+.b-teal{background:var(--teal-l);color:var(--teal-d)}
+.b-blue{background:var(--blue-l);color:var(--blue-d)}
+.b-amber{background:var(--amber-l);color:var(--amber-d)}
+.b-slate{background:var(--slate-l);color:var(--slate)}
+.b-red{background:var(--red-l);color:var(--red)}
+.b-purple{background:var(--purple-l);color:var(--purple)}
+
+/* ── LEGEND ── */
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:16px;font-size:12px;color:var(--ink2)}
+.leg{display:flex;align-items:center;gap:6px}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* ── CHART WRAP ── */
+.chart-wrap{position:relative;width:100%}
+
+/* ── PROGRAM CARDS ── */
+.prog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:24px}
+.prog-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);transition:transform 0.18s,box-shadow 0.18s}
+.prog-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.prog-tag{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.prog-entity{font-size:11px;color:var(--ink3);margin-bottom:10px}
+.prog-committed{font-size:30px;font-weight:300;letter-spacing:-0.03em;color:var(--ink);line-height:1;margin-bottom:5px}
+.prog-dep-row{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.prog-dep-val{font-size:15px;font-weight:600}
+.prog-dep-pct{font-size:11px;color:var(--ink3)}
+.prog-track{background:var(--surface2);border-radius:99px;height:5px;overflow:hidden;margin-bottom:12px}
+.prog-fill{height:100%;border-radius:99px;transition:width 1.2s ease}
+.prog-note{font-size:11.5px;color:var(--ink3);line-height:1.55;padding-top:12px;border-top:1px solid var(--border)}
+
+/* ── PROJECT TABLE ── */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;align-items:center}
+.filter-label{font-size:12px;color:var(--ink3);margin-right:4px}
+.fbtn{padding:5px 14px;border-radius:99px;border:1px solid var(--border2);background:transparent;font-size:12px;font-weight:500;cursor:pointer;color:var(--ink2);transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.fbtn:hover{background:var(--surface2)}
+.fbtn.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink3);padding:9px 10px;border-bottom:2px solid var(--border2);text-align:left;white-space:nowrap;background:var(--surface)}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--ink2);vertical-align:middle}
+.tbl tbody tr:hover td{background:var(--surface2)}
+.mono{font-family:'DM Mono',monospace;font-size:12px}
+.dep-bar-wrap{display:inline-flex;align-items:center;gap:6px}
+.dep-bar{display:inline-block;background:var(--surface2);border-radius:3px;height:5px;width:44px;overflow:hidden;vertical-align:middle}
+.dep-fill{height:100%;border-radius:3px}
+.dep-pct{font-size:10.5px;color:var(--ink3)}
+
+/* ── LOADING ── */
+.loading{text-align:center;padding:52px 24px;color:var(--ink3)}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin 0.75s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TIMELINE ── */
+.timeline{position:relative;padding-left:26px}
+.timeline::before{content:'';position:absolute;left:8px;top:5px;bottom:5px;width:2px;background:var(--border2)}
+.tl-item{position:relative;padding-bottom:20px}
+.tl-item:last-child{padding-bottom:0}
+.tl-dot{position:absolute;left:-22px;top:5px;width:10px;height:10px;border-radius:50%;border:2px solid var(--surface)}
+.tl-date{font-size:11px;font-weight:600;color:var(--ink3);margin-bottom:3px;font-family:'DM Mono',monospace}
+.tl-title{font-size:13.5px;font-weight:500;color:var(--ink);line-height:1.4;margin-bottom:2px}
+.tl-body{font-size:12px;color:var(--ink3);line-height:1.5}
+
+/* ── EMBED ── */
+.embed-row{background:var(--ink);color:#fff;padding:16px 20px;border-radius:var(--radius);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.embed-code{font-family:'DM Mono',monospace;font-size:11px;color:#4dffc7;background:rgba(255,255,255,0.07);padding:9px 13px;border-radius:7px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.embed-copy{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:7px;padding:8px 16px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:background 0.15s}
+.embed-copy:hover{background:rgba(255,255,255,0.2)}
+
+/* ── DONUT CENTRE TEXT ── */
+.donut-wrap{position:relative}
+.donut-centre{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.donut-big{font-size:22px;font-weight:500;color:var(--teal);line-height:1}
+.donut-small{font-size:11px;color:var(--ink3);margin-top:3px}
+
+/* ── FOOTER ── */
+.footer{background:var(--ink);color:rgba(255,255,255,0.38);font-size:12px;padding:36px;text-align:center;line-height:1.9}
+.footer strong{color:rgba(255,255,255,0.65)}
+.footer a{color:rgba(255,255,255,0.5);text-decoration:none}
+.footer a:hover{color:#4dffc7}
+
+.sector-tile{transition:transform 0.15s,box-shadow 0.15s;cursor:default}
+.sector-tile:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-brand">
+      <div class="logo">
+        <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11 2C6.03 2 2 6.03 2 11s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm1 13.5V15h-2v.5C7.96 15.24 6 13.3 6 11c0-2.76 2.24-5 5-5s5 2.24 5 5c0 2.3-1.96 4.24-4 4.5z" fill="rgba(255,255,255,0.7)"/>
+          <circle cx="11" cy="11" r="2.5" fill="#4dffc7"/>
+        </svg>
+      </div>
+      <div>
+        <div class="hdr-title">Australia CleanTech Capital Tracker</div>
+        <div class="hdr-sub">Public investment in clean energy &amp; climate solutions</div>
+      </div>
+    </div>
+    <div class="hdr-meta">
+      <div class="live-pill"><span class="live-dot"></span>Live · Google Sheets</div>
+      <div class="hdr-src">
+        Source: <a href="https://docs.google.com/spreadsheets/d/1Q--r4-VxoMik5fIJRV93WmkP4E5EY99ntbY4oO3YXI0" target="_blank" rel="noopener">CEF / Greenhouse Capital Tracker</a><br>
+        CEFC · ARENA · NRF · Future Made in Australia · State Programs
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- HERO STATS -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-grid">
+      <div class="h-stat">
+        <div class="h-lbl">Total committed (2025 onwards)</div>
+        <div class="h-val green"><sup>$</sup>90<sub>B</sub></div>
+        <div class="h-sub">Federal $83B · State $7B</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-lbl">Total deployed to date</div>
+        <div class="h-val blue"><sup>$</sup>17.7<sub>B</sub></div>
+        <div class="h-sub">20% of total committed envelope</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-lbl">2025 — full year deployed</div>
+        <div class="h-val green"><sup>$</sup>15.4<sub>B</sub></div>
+        <div class="h-sub">Record year · all tracked programs</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-lbl">2026 — Jan to Apr deployed</div>
+        <div class="h-val amber"><sup>$</sup>4.8<sub>B</sub></div>
+        <div class="h-sub">Annualised run rate: $14.4B/yr</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS -->
+<nav class="tabs-bar" aria-label="Dashboard sections">
+  <div class="tabs-inner">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">Overview</button>
+    <button class="tab-btn" onclick="switchTab('programs',this)">Programs</button>
+    <button class="tab-btn" onclick="switchTab('projects',this)">Projects 2025–26</button>
+    <button class="tab-btn" onclick="switchTab('milestones',this)">Milestones</button>
+    <button class="tab-btn" onclick="switchTab('firstnations',this)">First Nations</button>
+    <button class="tab-btn" onclick="switchTab('embed',this)">Share &amp; Embed</button>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ════════════════ OVERVIEW ════════════════ -->
+<section class="tab-panel active" id="panel-overview">
+
+  <div id="ov-loading" class="loading">
+    <div class="spinner"></div>
+    <div style="font-size:13px">Loading tracker data…</div>
+  </div>
+
+  <div id="ov-content" style="display:none">
+
+    <div class="callout teal">
+      <strong>$90 billion has been committed</strong> to clean energy by Australian governments since 2025 — yet only 20% has been deployed into actual projects. Australia's public clean energy investment is accelerating: 2025 saw a record $15.4B deployed across all tracked programs, and 2026 is maintaining that pace. This tracker captures every announced investment from the CEF/Greenhouse Capital Tracker.
+    </div>
+
+    <!-- Donut + funder bars -->
+    <div class="g2" style="margin-bottom:24px;align-items:start">
+
+      <div class="card">
+        <div class="card-title">Committed vs deployed — all programs (2025 onwards)</div>
+        <div class="card-note">Total public capital envelope across Federal and State programs. "Deployed" = paid out or project beyond FID. "Committed" = announced or allocated.</div>
+        <div class="legend">
+          <span class="leg"><span class="leg-dot" style="background:#0c8a5f"></span>Deployed · $17.7B (20%)</span>
+          <span class="leg"><span class="leg-dot" style="background:#ddeaf8"></span>Not yet deployed · $72.3B (80%)</span>
+        </div>
+        <div class="donut-wrap" style="height:210px;max-width:210px;margin:0 auto">
+          <canvas id="donutChart" aria-label="Donut showing $17.7B deployed vs $72.3B not yet deployed of $90B committed"></canvas>
+          <div class="donut-centre">
+            <div class="donut-big">20%</div>
+            <div class="donut-small">deployed</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Deployed by funder — 2026 YTD (Jan–Apr)</div>
+        <div class="card-note">Tracked project deployments from the Announcements 2026 tab · $4.8B total</div>
+        <div id="funder-bars"></div>
+      </div>
+    </div>
+
+    <!-- Annual chart -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-title">Annual tracked deployment — all programs ($B)</div>
+      <div class="card-note">Based on CEF/Greenhouse Capital Tracker. 2025 = full year total. 2026 = Jan–Apr actuals. No historical data collected before 2025 in this tracker.</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-dot" style="background:#0c8a5f"></span>2025 full year</span>
+        <span class="leg"><span class="leg-dot" style="background:#1557a4"></span>2026 Jan–Apr</span>
+        <span class="leg"><span class="leg-dot" style="background:#b86000"></span>2026 annualised run rate</span>
+      </div>
+      <div class="chart-wrap" style="height:280px">
+        <canvas id="annualChart" aria-label="Bar chart of 2025 full year and 2026 year to date clean energy deployment"></canvas>
+      </div>
+    </div>
+
+    <!-- State chart -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-title">2026 committed capital by state / territory</div>
+      <div class="card-note">Distribution of announced investments from the 2026 tab across jurisdictions</div>
+      <div class="chart-wrap" style="height:240px">
+        <canvas id="stateChart" aria-label="Horizontal bar chart of 2026 clean energy investment by Australian state"></canvas>
+      </div>
+    </div>
+
+    <!-- Sector breakdown treemap -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-title">Where is the capital going? — 2026 announced funding by sector</div>
+      <div class="card-note">Each project categorised by primary sector. Based on 2026 tracked announcements from the CEF/Greenhouse Capital Tracker. Bar width proportional to committed capital ($M).</div>
+      <div id="sector-treemap" style="min-height:170px;margin-bottom:4px"></div>
+    </div>
+
+    <!-- Residential vs Industrial + sector bars -->
+    <div class="g2" style="margin-bottom:24px;align-items:start">
+      <div class="card">
+        <div class="card-title">Residential vs industrial &amp; manufacturing</div>
+        <div class="card-note">Split of 2026 announced funding between household-facing programs and large-scale commercial or industrial investments</div>
+        <div class="chart-wrap" style="height:200px;max-width:200px;margin:0 auto;position:relative">
+          <canvas id="resIndDonut" aria-label="Donut chart of residential vs industrial capital split"></canvas>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+            <div id="res-centre-val" style="font-size:20px;font-weight:500;color:#1557a4;line-height:1"></div>
+            <div style="font-size:10px;color:var(--ink3);margin-top:3px">industrial</div>
+          </div>
+        </div>
+        <div class="legend" id="res-legend" style="justify-content:center;margin-top:14px;margin-bottom:0"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Sector committed capital — ranked ($M)</div>
+        <div class="card-note">2026 announced funding by sector · tracker projects only</div>
+        <div id="sector-bars"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════ PROGRAMS ════════════════ -->
+<section class="tab-panel" id="panel-programs">
+  <div class="sec-title">Funding programs &amp; vehicles</div>
+  <div class="sec-sub">Australia's public clean energy investment flows through several specialist vehicles and programs. Each has distinct mandates, capital envelopes and deployment track records. Data sourced from agency annual reports and the CEF/Greenhouse Capital Tracker.</div>
+
+  <div class="prog-grid" id="prog-cards"></div>
+
+  <div class="card" style="margin-top:8px">
+    <div class="card-title">Total envelope — committed vs deployed by program ($M)</div>
+    <div class="card-note">Source: FundingStreams tab · Federal $83B committed · State $7B committed · All figures AUD</div>
+    <div class="legend">
+      <span class="leg"><span class="leg-dot" style="background:#ddeaf8"></span>Committed</span>
+      <span class="leg"><span class="leg-dot" style="background:#0c8a5f"></span>Deployed</span>
+    </div>
+    <div class="chart-wrap" style="height:360px">
+      <canvas id="envelopeChart" aria-label="Horizontal grouped bar chart of committed vs deployed by program"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ PROJECTS ════════════════ -->
+<section class="tab-panel" id="panel-projects">
+  <div class="sec-title">Project register — 2025 &amp; 2026</div>
+  <div class="sec-sub">All tracked Australian government clean energy investment announcements. Data sourced live from the CEF/Greenhouse Capital Tracker Google Sheet.</div>
+
+  <div class="callout amber">
+    <strong id="proj-summary">Loading project data…</strong>
+  </div>
+
+  <div class="card">
+    <div class="tbl-filters" id="tbl-filters">
+      <span class="filter-label">Filter by funder:</span>
+    </div>
+    <div id="proj-loading" class="loading" style="padding:28px">
+      <div class="spinner"></div>
+      <div style="font-size:13px">Fetching live data…</div>
+    </div>
+    <div class="tbl-wrap" id="tbl-wrap" style="display:none">
+      <table class="tbl">
+        <thead><tr>
+          <th>Project / investment</th>
+          <th>Funder</th>
+          <th style="text-align:right">Committed ($M)</th>
+          <th>Deployed</th>
+          <th>Date</th>
+          <th>Location</th>
+        </tr></thead>
+        <tbody id="proj-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ MILESTONES ════════════════ -->
+<section class="tab-panel" id="panel-milestones">
+  <div class="sec-title">Key investment milestones</div>
+  <div class="sec-sub">Major announcements and record-setting moments in Australia's public clean energy investment since 2025. Sourced from agency reports and the CEF/Greenhouse Capital Tracker.</div>
+
+  <div class="g2" style="margin-bottom:24px;align-items:start">
+    <div class="card">
+      <div class="card-title">CEFC annual deployment — FY history ($B)</div>
+      <div class="card-note">Australia's green bank · $23B+ deployed since 2013 · FY2025 record year</div>
+      <div class="chart-wrap" style="height:210px">
+        <canvas id="cefcChart" aria-label="Bar chart of CEFC annual deployment FY22 to FY25"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Private capital leverage ratio</div>
+      <div class="card-note">$ of private capital unlocked per $1 of public investment — CEFC &amp; ARENA</div>
+      <div class="chart-wrap" style="height:210px">
+        <canvas id="leverageChart" aria-label="Line chart of leverage ratios for CEFC and ARENA"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Investment milestone timeline</div>
+    <div class="card-note">Significant announcements tracked since 2025</div>
+    <div class="timeline" id="timeline"></div>
+  </div>
+</section>
+
+<!-- ════════════════ FIRST NATIONS ════════════════ -->
+<section class="tab-panel" id="panel-firstnations">
+
+  <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+    <div>
+      <div class="sec-title" style="margin-bottom:4px">First Nations clean energy investment</div>
+      <div class="sec-sub" style="margin-bottom:0">How much of Australia's $90B clean energy capital is reaching First Nations communities — and what the land mismatch reveals about the gap that remains.</div>
+    </div>
+    <span style="flex-shrink:0;display:inline-block;padding:5px 14px;border-radius:99px;background:#fff0d6;border:1px solid #e89320;font-size:11.5px;font-weight:600;color:#7a3f00;white-space:nowrap;margin-top:4px">~0.2% of total capital</span>
+  </div>
+
+  <!-- THE BIG NUMBER CALLOUT -->
+  <div style="background:linear-gradient(135deg,#0a2d1f,#0f1a30);border-radius:var(--radius);padding:28px 32px;margin-bottom:24px;color:#fff">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:rgba(255,255,255,0.08);border-radius:10px;overflow:hidden">
+      <div style="background:rgba(255,255,255,0.04);padding:20px 22px">
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px">Directly First Nations-tied capital</div>
+        <div style="font-size:32px;font-weight:300;letter-spacing:-0.03em;color:#4dffc7;line-height:1">~$168<span style="font-size:18px;font-weight:500">M</span></div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px">Of $90B total committed</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);padding:20px 22px">
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px">Share of total public capital</div>
+        <div style="font-size:32px;font-weight:300;letter-spacing:-0.03em;color:#ffc46b;line-height:1">0.2<span style="font-size:18px;font-weight:500">%</span></div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px">Direct First Nations allocation</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);padding:20px 22px">
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px">Clean energy infra on First Nations land</div>
+        <div style="font-size:32px;font-weight:300;letter-spacing:-0.03em;color:#7eb8f7;line-height:1">43–50<span style="font-size:18px;font-weight:500">%</span></div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px">Of all infrastructure required for net zero</div>
+      </div>
+    </div>
+    <div style="margin-top:18px;font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6">
+      Sources: DCCEEW First Nations Clean Energy Strategy · CEFC Investment Updates · ARENA media releases · Net Zero Australia modelling · First Nations Clean Energy Network
+    </div>
+  </div>
+
+  <!-- LAND MISMATCH VISUAL -->
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-title">The land mismatch — infrastructure need vs capital allocation</div>
+    <div class="card-note">Of all renewable energy infrastructure required to reach net zero, 43–50% will be built on First Nations land. Yet First Nations communities receive approximately 0.2% of total public clean energy capital directly. This is both a justice gap and an economic one — the transition cannot be fully delivered without First Nations participation.</div>
+    <div id="land-mismatch-viz" style="margin-top:8px"></div>
+  </div>
+
+  <!-- PROGRAM BREAKDOWN + STRUCTURAL GAP -->
+  <div class="g2" style="margin-bottom:24px;align-items:start">
+
+    <div class="card">
+      <div class="card-title">Direct First Nations funding — program breakdown</div>
+      <div class="card-note">All identified programs with direct First Nations clean energy outcomes. Sources: DCCEEW, CEFC, ARENA, WA Government.</div>
+      <div id="fn-prog-bars"></div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:600;color:var(--ink3);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.07em">Note on scope</div>
+        <div style="font-size:12px;color:var(--ink3);line-height:1.6">These figures capture <em>directly</em> First Nations-designated funding. Additional capital flows to projects on First Nations land via mainstream programs (CEFC, ARENA, NRF, State funds) but without dedicated First Nations outcomes — that data is not publicly disaggregated.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">The structural barrier — CEFC mandate gap</div>
+      <div class="card-note">Why most First Nations-led projects cannot access the largest clean energy finance vehicle in Australia.</div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="padding:12px 14px;border-radius:var(--radius-sm);background:#fdecea;border-left:3px solid #c0392b">
+          <div style="font-size:11px;font-weight:700;color:#c0392b;margin-bottom:4px">CEFC MANDATE GAP</div>
+          <div style="font-size:12px;color:#3a3d4a;line-height:1.55">The CEFC's mandate requires commercial returns. Most First Nations-led projects involve community governance, Native Title land tenure and social outcomes that don't fit commercial underwriting criteria. The exclusion is structural, not intentional.</div>
+        </div>
+        <div style="padding:12px 14px;border-radius:var(--radius-sm);background:#d6f5ea;border-left:3px solid #0c8a5f">
+          <div style="font-size:11px;font-weight:700;color:#065c3f;margin-bottom:4px">WHAT'S CHANGING</div>
+          <div style="font-size:12px;color:#3a3d4a;line-height:1.55">The First Nations Clean Energy Network's reform paper has generated cautious support from CEFC executive and Ministerial advisers. A First Nations set-aside tender under the Capacity Investment Scheme is planned for 2026. Four CIS projects are currently negotiating equity with First Nations groups.</div>
+        </div>
+        <div style="padding:12px 14px;border-radius:var(--radius-sm);background:#ddeaf8;border-left:3px solid #1557a4">
+          <div style="font-size:11px;font-weight:700;color:#0d3d77;margin-bottom:4px">THE ECONOMIC CASE</div>
+          <div style="font-size:12px;color:#3a3d4a;line-height:1.55">43% of required clean energy infrastructure sits on First Nations land. Yindjibarndi Energy Corporation is targeting 3GW in the Pilbara. Ngarluma is planning 5GW. This pipeline is not accessible to mainstream investors without First Nations partnerships — fixing the structural gap unlocks a new and substantial investment frontier.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CAPACITY INVESTMENT SCHEME PROGRESS + TIMELINE -->
+  <div class="g2" style="margin-bottom:24px;align-items:start">
+
+    <div class="card">
+      <div class="card-title">Capacity Investment Scheme — First Nations progress</div>
+      <div class="card-note">CIS is the $70B revenue underwriting scheme for wind, solar and storage. First Nations integration is improving but remains early-stage.</div>
+      <div id="cis-progress"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">First Nations clean energy — key developments</div>
+      <div class="card-note">Timeline of significant policy and investment milestones</div>
+      <div class="timeline" id="fn-timeline"></div>
+    </div>
+
+  </div>
+
+  <!-- SOURCES FOOTER -->
+  <div style="background:var(--surface2);border-radius:var(--radius);padding:16px 20px;font-size:11.5px;color:var(--ink3);line-height:1.8">
+    <strong style="color:var(--ink2)">Sources:</strong>
+    DCCEEW First Nations Clean Energy Strategy &amp; Phase 1 Progress Update (2025–26) ·
+    CEFC Investment Update Dec 2025 ·
+    ARENA media release Apr 2026 ·
+    Net Zero Australia modelling ·
+    First Nations Clean Energy Network ·
+    WA Government Clean Energy Future Fund Round 4 ·
+    CEF/Greenhouse Capital Tracker ·
+    The Conversation (Jul 2025) ·
+    NIT Media (Feb 2026)
+  </div>
+
+</section>
+
+
+<!-- ════════════════ EMBED ════════════════ -->
+<section class="tab-panel" id="panel-embed">
+  <div class="sec-title">Share &amp; embed</div>
+  <div class="sec-sub">This dashboard is a fully self-contained HTML file — no backend, no API keys required. Host it anywhere and embed it in any website, app or Notion page.</div>
+
+  <div class="callout blue">
+    <strong>How live data works:</strong> The dashboard fetches publicly available CSV exports from the Google Sheet on every load. The sheet must be shared as "Anyone with the link can view" for live data to populate. If the fetch fails, curated fallback data is shown automatically.
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">iFrame — for websites, Squarespace, Webflow, WordPress</div>
+    <div class="card-note">Replace [YOUR-URL] with the public URL after hosting. Minimum recommended width: 720px.</div>
+    <div class="embed-row">
+      <div class="embed-code" id="iframe-code">&lt;iframe src="[YOUR-URL]" width="100%" height="900" frameborder="0" style="border-radius:12px;border:none"&gt;&lt;/iframe&gt;</div>
+      <button class="embed-copy" onclick="copyText('iframe-code',this)">Copy</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Notion embed</div>
+    <div class="card-note">In Notion, type <strong>/embed</strong>, paste your public URL, press Enter.</div>
+    <div class="embed-row">
+      <div class="embed-code" id="notion-code">Type /embed in Notion → paste your hosted URL → press Enter</div>
+      <button class="embed-copy" onclick="copyText('notion-code',this)">Copy</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Quick hosting options (free)</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px">
+      <div style="padding:14px;background:var(--surface2);border-radius:var(--radius-sm)">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink3);margin-bottom:8px">Netlify Drop</div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.7">Drag &amp; drop at <strong>netlify.com/drop</strong>. Live in 30 seconds. No account needed.</div>
+      </div>
+      <div style="padding:14px;background:var(--surface2);border-radius:var(--radius-sm)">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink3);margin-bottom:8px">GitHub Pages</div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.7">Upload as <strong>index.html</strong> → Settings → Pages → deploy. Free custom domain.</div>
+      </div>
+      <div style="padding:14px;background:var(--surface2);border-radius:var(--radius-sm)">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink3);margin-bottom:8px">Data source</div>
+        <div style="font-size:12.5px;color:var(--ink2);line-height:1.7"><a href="https://docs.google.com/spreadsheets/d/1Q--r4-VxoMik5fIJRV93WmkP4E5EY99ntbY4oO3YXI0" target="_blank" style="color:var(--blue)">CEF / Greenhouse Capital Tracker</a> · CEFC · ARENA · NRF Annual Reports · State budget papers</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <strong>Australia CleanTech Capital Tracker</strong><br>
+  Data: <a href="https://docs.google.com/spreadsheets/d/1Q--r4-VxoMik5fIJRV93WmkP4E5EY99ntbY4oO3YXI0" target="_blank">CEF / Greenhouse Capital Tracker</a> · CEFC · ARENA · NRF · Future Made in Australia · State Programs<br>
+  <span style="opacity:0.6">"Deployed" = paid out or beyond FID · "Committed" = announced / allocated · All figures AUD · Updated May 2026</span><br>
+  <span style="opacity:0.4">Not financial advice. Data is sourced from publicly available government and agency disclosures.</span>
+</footer>
+
+<script>
+'use strict';
+
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const SHEET_ID = '1Q--r4-VxoMik5fIJRV93WmkP4E5EY99ntbY4oO3YXI0';
+
+// ── COLOURS ─────────────────────────────────────────────────────────────────
+const FC = {
+  CEFC:'#1557a4', ARENA:'#0c8a5f', NRF:'#b86000',
+  State:'#534AB7', Federal:'#4a5568', EFA:'#c0392b', Other:'#7a7e8f'
+};
+const BADGE = {CEFC:'b-blue',ARENA:'b-teal',NRF:'b-amber',State:'b-purple',EFA:'b-red',Federal:'b-slate'};
+
+function badge(f){ return `<span class="badge ${BADGE[f]||'b-slate'}">${f}</span>`; }
+function fmtM(v){ return v>=1000?'$'+(v/1000).toFixed(1)+'B':'$'+v+'M'; }
+
+// ── FALLBACK DATA (from tracker) ─────────────────────────────────────────────
+const PROJECTS = [
+  // 2025 key entries
+  {p:"Rewiring the Nation — grid infrastructure",f:"CEFC",amt:8000,pct:30,dep:2400,d:"FY2025",s:"National"},
+  {p:"Household Energy Upgrades Fund",f:"Federal",amt:1000,pct:100,dep:1000,d:"FY2025",s:"National"},
+  {p:"Powering Australia Technology Fund",f:"Federal",amt:500,pct:100,dep:500,d:"FY2025",s:"National"},
+  {p:"Clean Energy Innovation Fund — Virescent",f:"CEFC",amt:230,pct:34,dep:78,d:"FY2025",s:"National"},
+  {p:"Green aluminium PTC — Rio Tinto",f:"Federal",amt:2000,pct:100,dep:2000,d:"Mar'26",s:"QLD"},
+  {p:"Collie 500MW / 2,400MWh BESS",f:"State",amt:1600,pct:100,dep:1600,d:"Feb'26",s:"WA"},
+  {p:"Snowy Hydro RE financing — Tomago",f:"CEFC",amt:1000,pct:0,dep:0,d:"Mar'26",s:"NSW"},
+  {p:"930MW wind farm PPAs — WA Govt",f:"State",amt:3000,pct:0,dep:0,d:"Mar'26",s:"WA"},
+  {p:"NW QLD Renewables and Firming",f:"State",amt:200,pct:0,dep:0,d:"Mar'26",s:"QLD"},
+  {p:"Goongarrie Hub Nickel-Cobalt",f:"EFA",amt:500,pct:0,dep:0,d:"Feb'26",s:"WA"},
+  {p:"WA Clean Energy Fund 2026-27",f:"State",amt:1400,pct:0,dep:0,d:"Apr'26",s:"WA"},
+  {p:"Powering the Regions Fund",f:"ARENA",amt:321,pct:0,dep:0,d:"Feb'26",s:"National"},
+  {p:"Industrial Transformation Stream Rd3",f:"ARENA",amt:180,pct:0,dep:0,d:"Mar'26",s:"National"},
+  {p:"QIC Global Infrastructure Fund 2",f:"CEFC",amt:70,pct:100,dep:70,d:"Jan'26",s:"Global"},
+  {p:"Australia's Economic Accelerator Ignite",f:"Federal",amt:73,pct:100,dep:73,d:"Jan'26",s:"National"},
+  {p:"Autonomous EV trucks — Applied EV",f:"NRF",amt:30,pct:100,dep:30,d:"Jan'26",s:"VIC"},
+  {p:"High Purity Alumina — Alpha HPA",f:"NRF",amt:75,pct:100,dep:75,d:"Jan'26",s:"QLD"},
+  {p:"Australian Renewable Energy Hub",f:"ARENA",amt:21,pct:100,dep:21,d:"Feb'26",s:"WA"},
+  {p:"Reforestation Tiwi Islands",f:"CEFC",amt:40,pct:100,dep:40,d:"Feb'26",s:"NT"},
+  {p:"Clean Energy Innovation Grants — LDES",f:"State",amt:9,pct:100,dep:9,d:"Feb'26",s:"WA"},
+  {p:"Qld Community Housing Energy Upgrades",f:"Federal",amt:116,pct:16,dep:18,d:"Feb'26",s:"QLD"},
+  {p:"Ngarluma 50MW solar — Pilbara",f:"State",amt:3,pct:100,dep:3,d:"Feb'26",s:"WA"},
+  {p:"Tyree Transformers manufacturing",f:"State",amt:22,pct:100,dep:22,d:"Feb'26",s:"NSW"},
+  {p:"Ag waste to biogas",f:"State",amt:20,pct:100,dep:20,d:"Feb'26",s:"NSW"},
+  {p:"Green ammonia — Hiringa Energy",f:"State",amt:10,pct:100,dep:10,d:"Feb'26",s:"NSW"},
+  {p:"Renewable Energy Skills Strategy",f:"Federal",amt:15,pct:100,dep:15,d:"Feb'26",s:"NSW"},
+  {p:"Scenic Rim Agricultural Precinct",f:"Federal",amt:40,pct:100,dep:40,d:"Feb'26",s:"QLD"},
+  {p:"Copper production pilot — Banksia",f:"ARENA",amt:5,pct:100,dep:5,d:"Mar'26",s:"QLD"},
+  {p:"First Nations Clean Energy Strategy",f:"Federal",amt:39,pct:0,dep:0,d:"Mar'26",s:"National"},
+  {p:"CRC-P Round 18 — battery recycling",f:"Federal",amt:66,pct:100,dep:66,d:"Mar'26",s:"National"},
+  {p:"National Industrial Transformation",f:"ARENA",amt:40,pct:33,dep:13,d:"Mar'26",s:"National"},
+  {p:"Wind Energy Manufacturing — WA",f:"State",amt:8,pct:0,dep:0,d:"Mar'26",s:"WA"},
+  {p:"GH2 for green ammonia",f:"State",amt:35,pct:100,dep:35,d:"Mar'26",s:"NSW"},
+  {p:"Commercial ag renewable gas",f:"ARENA",amt:10,pct:100,dep:10,d:"Mar'26",s:"SA"},
+  {p:"NatHERS energy rating — CSIRO",f:"Federal",amt:33,pct:31,dep:10,d:"Mar'26",s:"National"},
+  {p:"NewVolt EV truck charging",f:"ARENA",amt:25,pct:100,dep:25,d:"Mar'26",s:"VIC"},
+  {p:"VW Finance EV concessional",f:"CEFC",amt:100,pct:100,dep:100,d:"Mar'26",s:"National"},
+  {p:"NSW REZ road upgrades",f:"State",amt:183,pct:100,dep:183,d:"Mar'26",s:"NSW"},
+  {p:"IP Group Climate Catalyst Fund",f:"CEFC",amt:20,pct:100,dep:20,d:"Mar'26",s:"National"},
+  {p:"ARENA lithium processing",f:"ARENA",amt:38,pct:100,dep:38,d:"Apr'26",s:"National"},
+  {p:"ARENA remote First Nations communities",f:"ARENA",amt:11,pct:100,dep:11,d:"Apr'26",s:"National"},
+  {p:"NSW EV Strategy implementation",f:"State",amt:100,pct:0,dep:0,d:"Apr'26",s:"NSW"},
+  {p:"Voltavate",f:"ARENA",amt:5,pct:100,dep:5,d:"Apr'26",s:"National"},
+  {p:"PowerPlus Energy battery assembly",f:"ARENA",amt:2,pct:100,dep:2,d:"Apr'26",s:"VIC"},
+  {p:"Capral Aluminium — electric boiler",f:"ARENA",amt:3,pct:100,dep:3,d:"Apr'26",s:"QLD"},
+  {p:"Renewable Metals battery recycling",f:"CEFC",amt:4,pct:100,dep:4,d:"Apr'26",s:"NSW"},
+  {p:"National solar panel recycling",f:"Federal",amt:25,pct:100,dep:25,d:"Jan'26",s:"National"},
+  {p:"MGA Thermal FEED costs",f:"ARENA",amt:3,pct:100,dep:3,d:"Feb'26",s:"NSW"},
+];
+
+// ── TAB SWITCHING ────────────────────────────────────────────────────────────
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='projects' && !window._projDone) renderProjects(PROJECTS);
+  if(id==='firstnations' && !window._fnDone){ window._fnDone=true; buildFirstNations(); }
+}
+
+// ── COPY UTIL ────────────────────────────────────────────────────────────────
+function copyText(id, btn){
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>{
+    const t=btn.textContent; btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent=t,2000);
+  });
+}
+
+// ── CSV FETCH ────────────────────────────────────────────────────────────────
+async function fetchCSV(gid){
+  const r = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`);
+  if(!r.ok) throw new Error('fetch failed');
+  return r.text();
+}
+function parseCSV(text){
+  return text.split('\n').map(l=>{
+    const cells=[]; let cur='',inQ=false;
+    for(const c of l){
+      if(c==='"'){inQ=!inQ;continue;}
+      if(c===','&&!inQ){cells.push(cur.trim());cur='';}
+      else cur+=c;
+    }
+    cells.push(cur.trim());
+    return cells;
+  });
+}
+function parseMoney(s){ s=(s||'').replace(/[^0-9.]/g,''); return parseFloat(s)||0; }
+function parsePct(s){
+  s=(s||'').toString().replace('%','').trim();
+  const n=parseFloat(s); if(isNaN(n)) return 0;
+  return n<=1?Math.round(n*100):Math.round(n);
+}
+
+// ── BUILD OVERVIEW CHARTS ────────────────────────────────────────────────────
+function buildOverview(projects){
+  // DONUT — fixed totals from FundingStreams tab
+  new Chart(document.getElementById('donutChart'),{
+    type:'doughnut',
+    data:{
+      labels:['Deployed ($17.7B)','Not yet deployed ($72.3B)'],
+      datasets:[{data:[17700,72300],backgroundColor:['#0c8a5f','#ddeaf8'],borderWidth:0,hoverOffset:10}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' $'+(c.parsed/1000).toFixed(1)+'B ('+Math.round(c.parsed/90000*100)+'%)'}}}
+    }
+  });
+
+  // FUNDER DEPLOYED BARS — 2026 YTD from projects
+  const fMap={};
+  projects.filter(p=>p.d&&p.d.includes('26')).forEach(p=>{
+    if(!fMap[p.f])fMap[p.f]={dep:0,com:0};
+    fMap[p.f].dep+=p.dep; fMap[p.f].com+=p.amt;
+  });
+  const fSorted=Object.entries(fMap).sort((a,b)=>b[1].dep-a[1].dep).slice(0,7);
+  const maxD=Math.max(...fSorted.map(([,v])=>v.dep));
+  document.getElementById('funder-bars').innerHTML=fSorted.map(([n,v])=>`
+    <div class="fbar">
+      <div class="fbar-name">${n}</div>
+      <div class="fbar-bg"><div class="fbar-fill" style="width:${maxD?Math.round(v.dep/maxD*100):0}%;background:${FC[n]||'#888'}"></div></div>
+      <div class="fbar-amt">${fmtM(v.dep)}</div>
+    </div>`).join('');
+
+  // ANNUAL CHART — 2025 & 2026 only
+  new Chart(document.getElementById('annualChart'),{
+    type:'bar',
+    data:{
+      labels:['2025 (full year)','2026 (Jan–Apr)','2026 (annualised)'],
+      datasets:[{
+        label:'Deployed ($B)',
+        data:[15.4,4.8,null],
+        backgroundColor:['#0c8a5f','#1557a4','transparent'],
+        borderRadius:6, barPercentage:0.5
+      },{
+        label:'Annualised run rate',
+        data:[null,null,14.4],
+        backgroundColor:'rgba(184,96,0,0.15)',
+        borderColor:'#b86000',
+        borderWidth:2,
+        borderRadius:6, barPercentage:0.5
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y?' $'+c.parsed.y.toFixed(1)+'B':''}}},
+      scales:{
+        x:{ticks:{font:{size:12},color:'#3a3d4a'},grid:{display:false}},
+        y:{min:0,max:20,ticks:{callback:v=>'$'+v+'B',font:{size:11},color:'#7a7e8f'},grid:{color:'rgba(0,0,0,0.04)'},title:{display:true,text:'$B deployed',font:{size:11},color:'#7a7e8f'}}
+      }
+    }
+  });
+
+  // STATE CHART
+  const sMap={};
+  projects.filter(p=>p.d&&p.d.includes('26')).forEach(p=>{
+    const st=p.s||'Other'; if(!sMap[st])sMap[st]=0; sMap[st]+=p.amt;
+  });
+  const sSorted=Object.entries(sMap).sort((a,b)=>b[1]-a[1]).slice(0,9);
+  const stColors=['#0c8a5f','#1557a4','#b86000','#534AB7','#c0392b','#0e7e6e','#2563a8','#7a4f00','#3b3785'];
+  new Chart(document.getElementById('stateChart'),{
+    type:'bar',
+    data:{labels:sSorted.map(([s])=>s),datasets:[{data:sSorted.map(([,v])=>v),backgroundColor:stColors,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmtM(c.parsed.x)}}},
+      scales:{x:{ticks:{callback:v=>fmtM(v),font:{size:10.5},color:'#7a7e8f'},grid:{color:'rgba(0,0,0,0.04)'}},y:{ticks:{font:{size:11},color:'#3a3d4a'},grid:{display:false}}}
+    }
+  });
+
+  // ── SECTOR CATEGORISATION ──────────────────────────────────────────────────
+  // Six sectors based on Australia's five decarbonisation priorities + critical minerals
+  const SECTORS = {
+    'Renewable Generation':  { color:'#0c8a5f', type:'industrial',
+      match: p => /wind|solar|hydro|renewable energy hub|PPA|generation|firming|BESS|battery energy storage|Collie|REZ|powering the regions|clean energy future fund|clean energy link/i.test(p) },
+    'Grid & Storage':        { color:'#1557a4', type:'industrial',
+      match: p => /grid|transmission|storage(?! BESS)|network|rewiring|road upgrade|REZ road|transformer|NatHERS|AEMO/i.test(p) },
+    'Industrial Decarbonisation': { color:'#534AB7', type:'industrial',
+      match: p => /alumin|steel|industrial transform|industrial heat|electric boiler|ag waste|biogas|ammonia|clean fuel|Safeguard|decarboni|Capral|Tyree|MGA Thermal/i.test(p) },
+    'Critical Minerals & Manufacturing': { color:'#b86000', type:'industrial',
+      match: p => /mineral|nickel|cobalt|lithium|copper|alumin.*processing|battery.*recycl|recycl.*battery|NRF|Alpha HPA|Goongarrie|Banksia|Renewable Metals|PowerPlus|battery assembly|CRC-P/i.test(p) },
+    'Clean Transport':       { color:'#c0392b', type:'industrial',
+      match: p => /EV|electric vehicle|truck|transport|charging|mobility|Applied EV|NewVolt|VW Finance/i.test(p) },
+    'Hydrogen & Clean Fuels':{ color:'#3b3785', type:'industrial',
+      match: p => /hydrogen|H2|green ammonia|Hiringa|GH2|Hydrogen Headstart|clean fuel/i.test(p) },
+    'Residential & Community':{ color:'#7a4f00', type:'residential',
+      match: p => /household|housing|home|community|residential|energy upgrades|First Nations|remote|Ngarluma|recycling program|solar panel recycl|skills|training/i.test(p) },
+    'Innovation & R&D':      { color:'#4a5568', type:'industrial',
+      match: p => /innovation|R&D|accelerator|CRC|research|CSIRO|fund.*catalyst|catalyst.*fund|AEA|Voltavate|IP Group|MGA.*FEED/i.test(p) },
+  };
+
+  function categorise(proj) {
+    for (const [name, cfg] of Object.entries(SECTORS)) {
+      if (cfg.match(proj.p)) return name;
+    }
+    return 'Innovation & R&D';
+  }
+
+  const p26 = projects.filter(p=>p.d&&p.d.includes('26'));
+
+  // Build sector map
+  const secMap = {};
+  p26.forEach(p => {
+    const s = categorise(p);
+    if (!secMap[s]) secMap[s] = { amt:0, dep:0, count:0, color: SECTORS[s]?.color||'#888', type: SECTORS[s]?.type||'industrial' };
+    secMap[s].amt   += p.amt;
+    secMap[s].dep   += p.dep;
+    secMap[s].count += 1;
+  });
+  const secSorted = Object.entries(secMap).sort((a,b)=>b[1].amt-a[1].amt);
+  const totalSec  = secSorted.reduce((s,[,v])=>s+v.amt,0);
+
+  // SECTOR TREEMAP (custom CSS grid visual)
+  const treemapEl = document.getElementById('sector-treemap');
+  treemapEl.innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0">
+      ${secSorted.map(([name,v])=>{
+        const pct = Math.round(v.amt/totalSec*100);
+        const minW = Math.max(pct*1.6, 80);
+        const depPct = v.amt>0?Math.round(v.dep/v.amt*100):0;
+        return `<div style="
+          min-width:${minW}px;flex:${pct} 1 ${minW}px;
+          background:${v.color}12;border:1.5px solid ${v.color}40;
+          border-radius:10px;padding:14px 14px 12px;cursor:default;
+          transition:transform 0.15s,box-shadow 0.15s;position:relative;overflow:hidden"
+          class="sector-tile">
+          <div style="position:absolute;bottom:0;left:0;height:4px;width:100%;background:${v.color}20">
+            <div style="height:100%;width:${depPct}%;background:${v.color};border-radius:0 2px 2px 0;transition:width 1s ease"></div>
+          </div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:${v.color};margin-bottom:6px;line-height:1.3">${name}</div>
+          <div style="font-size:18px;font-weight:300;color:#0f1117;letter-spacing:-0.02em;line-height:1">${fmtM(v.amt)}</div>
+          <div style="font-size:10px;color:#7a7e8f;margin-top:4px">${pct}% of total · ${v.count} project${v.count!==1?'s':''}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="font-size:11px;color:var(--ink3);margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">
+      Coloured bottom bar = % of that sector's announced funding already deployed · Hover to highlight
+    </div>`;
+
+  // RESIDENTIAL vs INDUSTRIAL donut
+  const resAmt = secSorted.filter(([,v])=>v.type==='residential').reduce((s,[,v])=>s+v.amt,0);
+  const indAmt = secSorted.filter(([,v])=>v.type==='industrial').reduce((s,[,v])=>s+v.amt,0);
+  const indPct = Math.round(indAmt/(resAmt+indAmt)*100);
+  document.getElementById('res-centre-val').textContent = indPct+'%';
+  new Chart(document.getElementById('resIndDonut'),{
+    type:'doughnut',
+    data:{
+      labels:['Industrial & manufacturing','Residential & community'],
+      datasets:[{data:[indAmt,resAmt],backgroundColor:['#1557a4','#0c8a5f'],borderWidth:0,hoverOffset:8}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmtM(c.parsed)+' ('+Math.round(c.parsed/(resAmt+indAmt)*100)+'%)'}}}
+    }
+  });
+  document.getElementById('res-legend').innerHTML=`
+    <span class="leg"><span class="leg-dot" style="background:#1557a4"></span>Industrial ${fmtM(indAmt)} (${indPct}%)</span>
+    <span class="leg"><span class="leg-dot" style="background:#0c8a5f"></span>Residential ${fmtM(resAmt)} (${100-indPct}%)</span>`;
+
+  // SECTOR BARS
+  const maxSec = secSorted[0]?.[1]?.amt||1;
+  document.getElementById('sector-bars').innerHTML = secSorted.map(([name,v])=>`
+    <div class="fbar">
+      <div class="fbar-name" style="width:130px;font-size:11.5px;color:var(--ink2)">${name}</div>
+      <div class="fbar-bg"><div class="fbar-fill" style="width:${Math.round(v.amt/maxSec*100)}%;background:${v.color}"></div></div>
+      <div class="fbar-amt">${fmtM(v.amt)}</div>
+    </div>`).join('');
+}
+
+// ── BUILD PROGRAMS TAB ───────────────────────────────────────────────────────
+function buildPrograms(){
+  const programs=[
+    {name:'CEFC',entity:'Clean Energy Finance Corp',color:'#1557a4',
+     committed:'$32.5B',dep:4700,depRaw:4700,comRaw:32500,depPct:14,
+     note:'Record $4.7B deployed FY2025 · $6.1B in H2 2025 alone · $23B+ total since 2013 · $1:$4.14 private leverage'},
+    {name:'ARENA',entity:'Australian Renewable Energy Agency',color:'#0c8a5f',
+     committed:'$7.1B',dep:392,depRaw:392,comRaw:7100,depPct:6,
+     note:'$392M FY2024 · $1.62B new 10yr funding secured · Lifetime leverage $1:$3.55 · FY2025 data pending'},
+    {name:'NRF',entity:'National Reconstruction Fund',color:'#b86000',
+     committed:'$15B',dep:550,depRaw:550,comRaw:15000,depPct:4,
+     note:'$200M baseline (1 deal) · $550M deployed FY2025 · Cleantech share $3B · Deployment pace critical'},
+    {name:'FMIA',entity:'Future Made in Australia',color:'#534AB7',
+     committed:'$22.7B',dep:2000,depRaw:2000,comRaw:22700,depPct:9,
+     note:'Green aluminium PTC $2B · H2 Production Tax Incentive $6.7B · Clean energy manufacturing $500M'},
+    {name:'State Programs',entity:'All State & Territory Funds',color:'#3b3785',
+     committed:'$7B',dep:731,depRaw:731,comRaw:7000,depPct:10,
+     note:'WA $1.4B Clean Energy Fund · Collie 500MW BESS $1.6B · NSW EV Strategy · QLD Renewables'},
+    {name:'EFA / NAIF',entity:'Export Finance Australia + NAIF',color:'#c0392b',
+     committed:'$6.2B',dep:747,depRaw:747,comRaw:6200,depPct:12,
+     note:'Critical minerals focus · Conditional loans for large projects · Goongarrie $500M (signed Feb 2026)'},
+  ];
+
+  document.getElementById('prog-cards').innerHTML=programs.map(p=>`
+    <div class="prog-card">
+      <div class="prog-tag" style="color:${p.color}">${p.name}</div>
+      <div class="prog-entity">${p.entity}</div>
+      <div class="prog-committed">${p.committed}</div>
+      <div style="font-size:11px;color:var(--ink3);margin-bottom:10px">committed</div>
+      <div class="prog-dep-row">
+        <div class="prog-dep-val" style="color:${p.color}">${fmtM(p.depRaw)}</div>
+        <span class="prog-dep-pct">deployed · ${p.depPct}%</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" style="width:${p.depPct}%;background:${p.color}"></div></div>
+      <div class="prog-note">${p.note}</div>
+    </div>`).join('');
+
+  const envData=[
+    {n:'CEFC (incl. Rewiring)',c:32500,d:4700},
+    {n:'Future Made in Australia',c:22700,d:2000},
+    {n:'NRF (all)',c:15000,d:550},
+    {n:'ARENA (all programs)',c:7100,d:392},
+    {n:'State programs',c:7000,d:731},
+    {n:'EFA / NAIF',c:6200,d:747},
+    {n:'Home Battery Scheme',c:1000,d:1000},
+    {n:'DCCEEW programs',c:2200,d:198},
+  ].sort((a,b)=>b.c-a.c);
+
+  new Chart(document.getElementById('envelopeChart'),{
+    type:'bar',
+    data:{labels:envData.map(e=>e.n),
+      datasets:[
+        {label:'Committed',data:envData.map(e=>e.c),backgroundColor:'#ddeaf8',borderRadius:4},
+        {label:'Deployed',data:envData.map(e=>e.d),backgroundColor:'#0c8a5f',borderRadius:4}
+      ]
+    },
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmtM(c.parsed.x)}}},
+      scales:{
+        x:{ticks:{callback:v=>v>=1000?'$'+Math.round(v/1000)+'B':'$'+v+'M',font:{size:10.5},color:'#7a7e8f'},grid:{color:'rgba(0,0,0,0.04)'}},
+        y:{ticks:{font:{size:11},color:'#3a3d4a'},grid:{display:false}}
+      }
+    }
+  });
+}
+
+// ── BUILD MILESTONES TAB ─────────────────────────────────────────────────────
+function buildMilestones(){
+  new Chart(document.getElementById('cefcChart'),{
+    type:'bar',
+    data:{
+      labels:['FY2022','FY2023','FY2024','FY2025'],
+      datasets:[{data:[1.43,1.9,1.8,4.7],backgroundColor:['#ddeaf8','#b5d4f4','#378add','#1557a4'],borderRadius:6}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'$'+c.parsed.y.toFixed(2)+'B'}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{ticks:{callback:v=>'$'+v+'B',font:{size:11}},grid:{color:'rgba(0,0,0,0.04)'}}}
+    }
+  });
+  new Chart(document.getElementById('leverageChart'),{
+    type:'line',
+    data:{
+      labels:['FY2022','FY2023','FY2024','FY2025'],
+      datasets:[
+        {label:'CEFC',data:[2.42,5.02,4.01,4.14],borderColor:'#1557a4',backgroundColor:'rgba(21,87,164,0.07)',pointBackgroundColor:'#1557a4',tension:0.35,fill:true,borderWidth:2.5,pointRadius:5},
+        {label:'ARENA',data:[3.32,3.44,6.33,null],borderColor:'#0c8a5f',backgroundColor:'rgba(12,138,95,0.06)',pointBackgroundColor:'#0c8a5f',tension:0.35,fill:true,borderWidth:2.5,pointRadius:5,borderDash:[4,3]},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{font:{size:11},boxWidth:10}},tooltip:{callbacks:{label:c=>' $1 : $'+c.parsed.y.toFixed(2)}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{min:0,max:8,ticks:{callback:v=>'$1:$'+v,font:{size:10.5}},grid:{color:'rgba(0,0,0,0.04)'}}}
+    }
+  });
+
+  const milestones=[
+    {d:'Apr 2026',t:'WA $1.4B Clean Energy Fund announced',b:'Cook Govt 2026-27 budget. State-led commitment takes total Fed+State to ~$90B committed.',c:'#534AB7'},
+    {d:'Mar 2026',t:'Green aluminium PTC — Rio Tinto $2B',b:'Largest single Future Made in Australia deployment. Queensland operations. First major PTC payout.',c:'#534AB7'},
+    {d:'Feb 2026',t:'Collie 500MW BESS — WA state investment',b:'$1.6B battery energy storage. Largest battery project in WA history. Fully committed and deployed.',c:'#0c8a5f'},
+    {d:'Feb 2026',t:'CEFC record: $6.1B in H2 2025 alone',b:'Total transaction value $12B. FY2025 full year $4.7B — more than double the FY2022 baseline.',c:'#1557a4'},
+    {d:'Feb 2026',t:'Goongarrie Nickel-Cobalt — EFA $500M',b:'Export Finance Australia conditional loan signed. Critical minerals processing. WA-based.',c:'#c0392b'},
+    {d:'Jan 2026',t:'2025 full year: record $15.4B deployed',b:'Across all tracked programs — the strongest year on record for Australian public clean energy deployment.',c:'#0c8a5f'},
+    {d:'Jul 2025',t:'CEFC recapitalised — additional $2B',b:'Takes total CEFC committed envelope to $32.5B. First recapitalisation since inception in 2012.',c:'#1557a4'},
+    {d:'May 2024',t:'Future Made in Australia — $22.7B over decade',b:'Budget 2024-25 commits largest ever clean energy package. ARENA $7.1B · H2 PTI $6.7B · PTC framework.',c:'#534AB7'},
+  ];
+  document.getElementById('timeline').innerHTML=milestones.map(m=>`
+    <div class="tl-item">
+      <div class="tl-dot" style="background:${m.c}"></div>
+      <div class="tl-date">${m.d}</div>
+      <div class="tl-title">${m.t}</div>
+      <div class="tl-body">${m.b}</div>
+    </div>`).join('');
+}
+
+// ── RENDER PROJECT TABLE ─────────────────────────────────────────────────────
+function renderProjects(projects){
+  window._projDone=true;
+  document.getElementById('proj-loading').style.display='none';
+  document.getElementById('tbl-wrap').style.display='block';
+
+  const totalC=projects.reduce((s,p)=>s+p.amt,0);
+  const totalD=projects.reduce((s,p)=>s+p.dep,0);
+  document.getElementById('proj-summary').textContent=
+    `${projects.length} tracked investments · ${fmtM(totalC)} total committed · ${fmtM(totalD)} deployed`;
+
+  const funders=['All',...new Set(projects.map(p=>p.f))];
+  const filtersEl=document.getElementById('tbl-filters');
+  filtersEl.innerHTML='<span class="filter-label">Filter by funder:</span>';
+  let active='All';
+
+  funders.forEach(f=>{
+    const btn=document.createElement('button');
+    btn.className='fbtn'+(f==='All'?' on':'');
+    btn.textContent=f;
+    btn.onclick=()=>{
+      active=f;
+      document.querySelectorAll('#tbl-filters .fbtn').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+      render();
+    };
+    filtersEl.appendChild(btn);
+  });
+
+  function depCol(pct){ return pct===100?'#0c8a5f':pct>0?'#b86000':'#ddeaf8'; }
+  function render(){
+    const rows=active==='All'?projects:projects.filter(p=>p.f===active);
+    document.getElementById('proj-tbody').innerHTML=rows.map(p=>`
+      <tr>
+        <td style="max-width:260px;line-height:1.4;font-size:12.5px">${p.p}</td>
+        <td>${badge(p.f)}</td>
+        <td class="mono" style="text-align:right">${fmtM(p.amt)}</td>
+        <td>
+          <div class="dep-bar-wrap">
+            <div class="dep-bar"><div class="dep-fill" style="width:${p.pct}%;background:${depCol(p.pct)}"></div></div>
+            <span class="dep-pct">${p.pct}%</span>
+          </div>
+        </td>
+        <td class="mono" style="font-size:11px;color:var(--ink3);white-space:nowrap">${p.d||'—'}</td>
+        <td style="font-size:11.5px;color:var(--ink3);white-space:nowrap">${p.s||'—'}</td>
+      </tr>`).join('');
+  }
+  render();
+}
+
+// ── BUILD FIRST NATIONS TAB ──────────────────────────────────────────────────
+function buildFirstNations(){
+
+  // LAND MISMATCH VISUAL
+  const mmEl = document.getElementById('land-mismatch-viz');
+  mmEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Clean energy infrastructure on First Nations land</div>
+        <div style="background:var(--surface2);border-radius:10px;overflow:hidden;height:48px;position:relative;margin-bottom:8px">
+          <div style="position:absolute;inset:0;display:flex;align-items:center">
+            <div style="width:50%;background:linear-gradient(90deg,#0c8a5f,#12c284);height:100%;display:flex;align-items:center;padding:0 14px;transition:width 1.4s ease">
+              <span style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap">43–50%</span>
+            </div>
+            <div style="flex:1;display:flex;align-items:center;padding:0 14px">
+              <span style="font-size:12px;color:var(--ink3)">Other land</span>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:11.5px;color:var(--ink2);line-height:1.6">Of all infrastructure required to reach net zero by 2050–60. Source: Net Zero Australia modelling · First Nations Clean Energy Strategy.</div>
+      </div>
+
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Public capital directly allocated to First Nations</div>
+        <div style="background:var(--surface2);border-radius:10px;overflow:hidden;height:48px;position:relative;margin-bottom:8px">
+          <div style="position:absolute;inset:0;display:flex;align-items:center">
+            <div style="width:0.2%;background:linear-gradient(90deg,#b86000,#e89320);height:100%;min-width:3px;transition:width 1.4s ease"></div>
+            <div style="flex:1;display:flex;align-items:center;padding:0 10px;gap:10px">
+              <span style="font-size:13px;font-weight:600;color:#b86000;white-space:nowrap">0.2%</span>
+              <span style="font-size:12px;color:var(--ink3)">of $90B committed</span>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:11.5px;color:var(--ink2);line-height:1.6">~$168M identified across all programs with direct First Nations clean energy outcomes. The structural exclusion from CEFC finance is the primary barrier.</div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:16px;padding:16px;background:linear-gradient(90deg,#fff0d6,#fdecea);border-radius:10px;border:1px solid #e89320">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="font-size:28px;font-weight:300;color:#7a3f00;letter-spacing:-0.02em;white-space:nowrap">250× gap</div>
+        <div style="font-size:13px;color:#3a3d4a;line-height:1.5;flex:1;min-width:200px">First Nations land hosts <strong>~47%</strong> of required clean energy infrastructure but receives <strong>~0.2%</strong> of public capital directly. Closing that gap — even partially — represents the largest untapped deployment opportunity in Australia's transition.</div>
+      </div>
+    </div>`;
+
+  // PROGRAM BARS
+  const fnPrograms = [
+    { n:'First Nations Clean Energy Strategy (DCCEEW)', amt:70, dep:15, color:'#0c8a5f', note:'3-year program from 2025–26 · 24 priority actions' },
+    { n:'CEFC Tiwi Islands forestry (carbon)', amt:40, dep:40, color:'#1557a4', note:'Largest First Nations-led carbon initiative · Deployed' },
+    { n:'Federal tracker program spend (2026)', amt:39, dep:0, color:'#534AB7', note:'Ongoing strategy implementation · announced Mar 2026' },
+    { n:'ARENA NT remote microgrids', amt:11, dep:11, color:'#0c8a5f', note:'First Nations-led microgrids · NT remote communities · Deployed' },
+    { n:'Ngarluma Green Energy Park seed (WA)', amt:2.7, dep:2.7, color:'#3b3785', note:'100% Traditional Owner-owned · 5GW ambition · Seed only' },
+    { n:'ARENA Advice Grants program (est.)', amt:5, dep:3, color:'#7a4f00', note:'Up to $80K per project · Applications open Sep 2026' },
+  ];
+  const maxFN = 70;
+  document.getElementById('fn-prog-bars').innerHTML = fnPrograms.map(p => {
+    const depPct = Math.round(p.dep/p.amt*100);
+    const barW = Math.round(p.amt/maxFN*100);
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:2px">
+        <div style="font-size:12px;font-weight:500;color:var(--ink2);line-height:1.3;max-width:280px">${p.n}</div>
+        <div style="font-size:11px;font-weight:600;color:${p.color};white-space:nowrap">$${p.amt}M</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:99px;height:8px;overflow:hidden;margin-bottom:3px">
+        <div style="width:${barW}%;height:100%;background:${p.color}30;border-radius:99px;position:relative">
+          <div style="width:${depPct}%;height:100%;background:${p.color};border-radius:99px;transition:width 1.2s ease"></div>
+        </div>
+      </div>
+      <div style="font-size:10.5px;color:var(--ink3)">${p.note} · ${depPct}% deployed</div>
+    </div>`;
+  }).join('');
+
+  // CIS PROGRESS
+  document.getElementById('cis-progress').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:var(--surface2);border-radius:var(--radius-sm)">
+        <div>
+          <div style="font-size:12.5px;font-weight:500;color:var(--ink)">CIS projects awarded (total)</div>
+          <div style="font-size:11px;color:var(--ink3)">Includes First Nations merit criteria</div>
+        </div>
+        <div style="font-size:22px;font-weight:300;color:#1557a4">~60</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:var(--teal-l);border-radius:var(--radius-sm);border:1px solid rgba(12,138,95,0.2)">
+        <div>
+          <div style="font-size:12.5px;font-weight:500;color:var(--ink)">Projects negotiating First Nations equity</div>
+          <div style="font-size:11px;color:var(--ink3)">Active equity discussions underway</div>
+        </div>
+        <div style="font-size:22px;font-weight:300;color:#0c8a5f">4</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:var(--amber-l);border-radius:var(--radius-sm);border:1px solid rgba(184,96,0,0.2)">
+        <div>
+          <div style="font-size:12.5px;font-weight:500;color:var(--ink)">First Nations set-aside tender</div>
+          <div style="font-size:11px;color:var(--ink3)">Minimum MW for FN equity/revenue sharing</div>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:#b86000">2026 planned</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:var(--blue-l);border-radius:var(--radius-sm);border:1px solid rgba(21,87,164,0.2)">
+        <div>
+          <div style="font-size:12.5px;font-weight:500;color:var(--ink)">CEFC mandate reform</div>
+          <div style="font-size:11px;color:var(--ink3)">Cautious ministerial & CEFC support · no change yet</div>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:#1557a4">In progress</div>
+      </div>
+      <div style="font-size:11.5px;color:var(--ink3);line-height:1.6;padding-top:8px">
+        Source: First Nations Clean Energy Network · NIT Media Feb 2026 · DCCEEW CIS documentation
+      </div>
+    </div>`;
+
+  // TIMELINE
+  const fnEvents = [
+    { d:'Apr 2026', t:'ARENA $11M — NT remote First Nations microgrids deployed', b:'Fully deployed. First Nations-led design and co-development. Program closed to new applications Dec 2025.', c:'#0c8a5f' },
+    { d:'Mar 2026', t:'Federal $39M First Nations Clean Energy Strategy spend announced', b:'Ongoing implementation of the 2025–26 Strategy. Phase 1 progress update published.', c:'#534AB7' },
+    { d:'Feb 2026', t:'Ngarluma 5GW Green Energy Park — WA $2.7M seed', b:'100% Traditional Owner-owned. Targeting 5GW. Connected to Pilbara Energy Transition Plan Burrup Corridor.', c:'#3b3785' },
+    { d:'Feb 2026', t:'First Nations Co-ownership Guide released — FNCEN', b:'Network releases equity participation guide. Four CIS projects actively negotiating First Nations equity.', c:'#1557a4' },
+    { d:'Dec 2025', t:'CEFC $40M — Tiwi Islands forestry carbon initiative deployed', b:'Australia\'s largest First Nations-led carbon project. Native species plantation. Long-rotation carbon program.', c:'#1557a4' },
+    { d:'Jul 2025', t:'First Nations Clean Energy Strategy launched — $70M committed', b:'Australia\'s first national First Nations clean energy framework. 24 priority actions. 3-year implementation from 2025–26.', c:'#0c8a5f' },
+    { d:'2026 planned', t:'CIS First Nations set-aside tender', b:'Minimum MW allocation for projects with First Nations equity and/or revenue-sharing agreements. First structural CIS reform.', c:'#b86000' },
+  ];
+  document.getElementById('fn-timeline').innerHTML = fnEvents.map(e => `
+    <div class="tl-item">
+      <div class="tl-dot" style="background:${e.c}"></div>
+      <div class="tl-date">${e.d}</div>
+      <div class="tl-title">${e.t}</div>
+      <div class="tl-body">${e.b}</div>
+    </div>`).join('');
+}
+
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+async function init(){
+  let projects=PROJECTS;
+
+  try{
+    const csv=await fetchCSV('0');
+    const rows=parseCSV(csv);
+    const parsed=[];
+    for(let i=4;i<rows.length;i++){
+      const r=rows[i]; if(!r||r.length<6) continue;
+      const proj=(r[2]||'').trim();
+      const entity=(r[4]||'').trim();
+      const amt=parseMoney(r[5]);
+      const pct=parsePct(r[6]);
+      const dep=parseMoney(r[7]);
+      const date=(r[8]||'').trim();
+      const loc=(r[10]||'').trim();
+      if(!proj||amt===0) continue;
+      let f='Federal';
+      if(entity.includes('CEFC')) f='CEFC';
+      else if(entity.includes('ARENA')) f='ARENA';
+      else if(entity.includes('NRF')) f='NRF';
+      else if(entity.includes('EFA')||entity.includes('Export Finance')) f='EFA';
+      else if(/state|WA Govt|Vic|NSW|QLD|SA Govt|Cook/i.test(entity)) f='State';
+      parsed.push({p:proj,f,amt,pct,dep,d:date,s:loc||'National'});
+    }
+    if(parsed.length>5){
+      projects=parsed;
+      document.querySelector('.hdr-src').innerHTML=
+        `Source: <a href="https://docs.google.com/spreadsheets/d/${SHEET_ID}" target="_blank" rel="noopener">CEF / Greenhouse Tracker</a> — Live · ${parsed.length} projects<br>CEFC · ARENA · NRF · Future Made in Australia · State Programs`;
+    }
+  }catch(e){ console.log('Using embedded data',e.message); }
+
+  document.getElementById('ov-loading').style.display='none';
+  document.getElementById('ov-content').style.display='block';
+
+  buildOverview(projects);
+  buildPrograms();
+  buildMilestones();
+}
+
+init();
+</script>
+</body>
+</html>
